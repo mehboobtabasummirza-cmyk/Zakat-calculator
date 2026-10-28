@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zakat Calculator</title>
+    <style>
+        :root {
+            --primary: #0d5c3a;
+            --primary-light: #138052;
+            --gold: #d4af37;
+            --bg: #f4f7f5;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px 15px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 5px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .summary-box {
+            background: #eaf4f0;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin: 10px 0;
+        }
+
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+
+        .zakat-amount {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Zakat Calculator</h1>
+        <p>Simple & Transparent Wealth Assessment</p>
+    </header>
+
+    <!-- 1. Market Rates & Nisab -->
+    <div class="card">
+        <h2>1. Market Rates & Nisab Benchmark</h2>
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Gold Price ($ / gram)</label>
+                <input type="number" id="goldRate" value="85.50" step="0.01" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label>Silver Price ($ / gram)</label>
+                <input type="number" id="silverRate" value="1.05" step="0.01" oninput="calculate()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Nisab Standard</label>
+            <select id="nisabStandard" onchange="calculate()">
+                <option value="silver" selected>Silver Benchmark (595g - Recommended for Charity)</option>
+                <option value="gold">Gold Benchmark (85g)</option>
+            </select>
+        </div>
+        <p style="font-size:0.85rem; color:#666;">
+            Active Nisab Threshold: <strong id="nisabDisplay">$624.75</strong>
+        </p>
+    </div>
+
+    <!-- 2. Assets -->
+    <div class="card">
+        <h2>2. Zakatable Assets</h2>
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Cash & Bank Balances ($)</label>
+                <input type="number" id="cash" value="0" min="0" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label>Gold Owned (grams)</label>
+                <input type="number" id="goldGrams" value="0" min="0" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label>Silver Owned (grams)</label>
+                <input type="number" id="silverGrams" value="0" min="0" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label>Stocks, Funds & Investments ($)</label>
+                <input type="number" id="investments" value="0" min="0" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label>Business Goods / Inventory ($)</label>
+                <input type="number" id="inventory" value="0" min="0" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label>Debts Owed to You ($)</label>
+                <input type="number" id="receivables" value="0" min="0" oninput="calculate()">
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Liabilities -->
+    <div class="card">
+        <h2>3. Short-Term Liabilities</h2>
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Debts Due Immediately ($)</label>
+                <input type="number" id="debts" value="0" min="0" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label>Overdue Bills & Household Payables ($)</label>
+                <input type="number" id="bills" value="0" min="0" oninput="calculate()">
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Summary -->
+    <div class="summary-box">
+        <h3>Zakat Assessment Summary</h3>
+        <p style="margin-top:10px;">Net Zakatable Wealth: <strong id="netWealth">$0.00</strong></p>
+        <div id="statusBadge" class="badge badge-warning">Below Nisab Threshold</div>
+        <div>Total Zakat Payable (2.5%):</div>
+        <div class="zakat-amount" id="zakatDue">$0.00</div>
+    </div>
+
+    <footer>
+        <p>Calculated based on standard lunar year rules (2.5%). Consult an authentic scholar for specific rulings.</p>
+    </footer>
+</div>
+
+<script>
+    function calculate() {
+        const goldRate = parseFloat(document.getElementById('goldRate').value) || 0;
+        const silverRate = parseFloat(document.getElementById('silverRate').value) || 0;
+        const nisabStandard = document.getElementById('nisabStandard').value;
+
+        // Nisab Values
+        const nisabGold = 85 * goldRate;
+        const nisabSilver = 595 * silverRate;
+        const activeNisab = (nisabStandard === 'gold') ? nisabGold : nisabSilver;
+
+        document.getElementById('nisabDisplay').innerText = '$' + activeNisab.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+        // Assets
+        const cash = parseFloat(document.getElementById('cash').value) || 0;
+        const goldVal = (parseFloat(document.getElementById('goldGrams').value) || 0) * goldRate;
+        const silverVal = (parseFloat(document.getElementById('silverGrams').value) || 0) * silverRate;
+        const investments = parseFloat(document.getElementById('investments').value) || 0;
+        const inventory = parseFloat(document.getElementById('inventory').value) || 0;
+        const receivables = parseFloat(document.getElementById('receivables').value) || 0;
+
+        const totalAssets = cash + goldVal + silverVal + investments + inventory + receivables;
+
+        // Liabilities
+        const debts = parseFloat(document.getElementById('debts').value) || 0;
+        const bills = parseFloat(document.getElementById('bills').value) || 0;
+        const totalLiabilities = debts + bills;
+
+        // Net Wealth
+        const netWealth = Math.max(0, totalAssets - totalLiabilities);
+        document.getElementById('netWealth').innerText = '$' + netWealth.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+        // Zakat Eligibility
+        const badge = document.getElementById('statusBadge');
+        const zakatDueEl = document.getElementById('zakatDue');
+
+        if (netWealth >= activeNisab && netWealth > 0) {
+            badge.className = 'badge badge-success';
+            badge.innerText = 'Eligible to Pay Zakat';
+            const zakat = netWealth * 0.025;
+            zakatDueEl.innerText = '$' + zakat.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        } else {
+            badge.className = 'badge badge-warning';
+            badge.innerText = 'Below Nisab Threshold';
+            zakatDueEl.innerText = '$0.00';
+        }
+    }
+
+    // Initial calculation
+    calculate();
+</script>
+</body>
+</html>
